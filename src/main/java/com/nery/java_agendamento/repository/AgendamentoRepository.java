@@ -9,9 +9,13 @@ import java.util.List;
 
 public interface AgendamentoRepository extends JpaRepository<Agendamento, Long> {
 
+    /**
+     * Busca agendamentos que conflitam com o período solicitado.
+     * Lógica de sobreposição: (InícioA < FimB) E (FimA > InícioB)
+     */
     @Query("SELECT a FROM Agendamento a WHERE a.barbeiro.id = :barbeiroId " +
-            "AND ((a.dataHoraInicio BETWEEN :inicio AND :fim) " +
-            "OR (a.dataHoraFim BETWEEN :inicio AND :fim))")
+            "AND a.status <> 'CANCELADO' " +
+            "AND (a.dataHoraInicio < :fim AND a.dataHoraFim > :inicio)")
     List<Agendamento> findConflitos(@Param("barbeiroId") Long barbeiroId,
                                     @Param("inicio") LocalDateTime inicio,
                                     @Param("fim") LocalDateTime fim);
